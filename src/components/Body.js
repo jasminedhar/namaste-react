@@ -1,47 +1,60 @@
 import RestaurantCard from "./RestaurantCard";
 import resList from "../utils/mockData";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Shimmer from "./Shimmer";
 
 const Body = () => {
-  let [listOfRestaurants, setListOfRestaurants] = useState(resList);
-  // let listOfRestaurantsJS = [
-  //   {
-  //     data: {
-  //       id: "334475",
-  //       name: "KFC",
-  //       cloudinaryImageId: "bdcd233971b7c81bf77e1fa4471280eb",
-  //       cuisines: ["Burgers", "Biryani", "American", "Snacks", "Fast Food"],
-  //       costForTwo: 40000,
-  //       deliveryTime: 36,
-  //       avgRating: "3.8",
-  //     },
-  //   },
-  //   {
-  //     data: {
-  //       id: "334476",
-  //       name: "Dominos",
-  //       cloudinaryImageId: "bdcd233971b7c81bf77e1fa4471280eb",
-  //       cuisines: ["Burgers", "Biryani", "American", "Snacks", "Fast Food"],
-  //       costForTwo: 40000,
-  //       deliveryTime: 36,
-  //       avgRating: "4.5",
-  //     },
-  //   },
-  //   {
-  //     data: {
-  //       id: "334477",
-  //       name: "MCD",
-  //       cloudinaryImageId: "bdcd233971b7c81bf77e1fa4471280eb",
-  //       cuisines: ["Burgers", "Biryani", "American", "Snacks", "Fast Food"],
-  //       costForTwo: 40000,
-  //       deliveryTime: 36,
-  //       avgRating: "4.1",
-  //     },
-  //   },
-  // ];
-  return (
+  const [listOfRestaurants, setListOfRestaurants] = useState(resList);
+  const [filteredRestaurant, setFilteredRestaurant] = useState(resList);
+  const [searchText, setSearchText] = useState("");
+
+  useEffect(() => {
+    console.log("useEffect Called");
+    // fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    const data = await fetch(
+      "https://www.swiggy.com/dapi/restaurants/list/v5?lat=12.9351929&lng=77.62448069999999&page_type=DESKTOP_WEB_LISTING"
+    );
+    const json = await data.json();
+    console.log(json);
+  };
+  console.log("Body rendered");
+
+  //Conditional Rendering
+  // if (listOfRestaurants.length === 0) {
+  //   return <Shimmer />;
+  // }
+
+  return listOfRestaurants.length === 0 ? (
+    <Shimmer />
+  ) : (
     <div className="body">
       <div className="filter">
+        <div className="search">
+          <input
+            type="text"
+            className="search-box"
+            value={searchText}
+            onChange={(e) => {
+              setSearchText(e.target.value);
+            }}
+          />
+          <button
+            onClick={() => {
+              console.log(searchText);
+              const filteredRestaurant = listOfRestaurants.filter((res) =>
+                res.data.name
+                  .toLocaleLowerCase()
+                  .includes(searchText.toLocaleLowerCase())
+              );
+              setFilteredRestaurant(filteredRestaurant);
+            }}
+          >
+            Search
+          </button>
+        </div>
         <button
           className="filter-btn"
           onClick={() => {
@@ -49,14 +62,15 @@ const Body = () => {
               (res) => res.data.avgRating > 4
             );
             console.log(filteredList);
-            setListOfRestaurants(filteredList);
+            //  setListOfRestaurants(filteredList);
+            setFilteredRestaurant(filteredList);
           }}
         >
           Top Rated Restaurants
         </button>
       </div>
       <div className="res-container">
-        {listOfRestaurants.map((restaurant) => (
+        {filteredRestaurant.map((restaurant) => (
           <RestaurantCard key={restaurant.data.id} resData={restaurant} />
         ))}
       </div>
