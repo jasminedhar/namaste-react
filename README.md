@@ -38,3 +38,5 @@
 - - Links
 - - Address
 - - Contact \*
+
+# 2 types of routing
